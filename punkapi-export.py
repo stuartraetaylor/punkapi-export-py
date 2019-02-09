@@ -6,7 +6,7 @@ import requests
 import json
 import re
 
-def beers(payload = {}):
+def beers(payload):
     if not payload:
         return request('beers/random')
     else:
@@ -30,30 +30,38 @@ def export(beer, format = 'json'):
     print('Found: ' + beer['name'])
 
 def format(s):
+    if s is None:
+        return s
     return re.sub('\s+', '_', s.strip())
 
 def main():
     parser = argparse.ArgumentParser(
         description='Exports beers from the Punk API - https://punkapi.com')
     parser.add_argument('beer_name',
+        nargs='?',
         metavar='beer_name',
-        help='Beer name, e.g., Punk IPA')
+        help='Name of the beer, e.g., Punk IPA')
     parser.add_argument("-f", "--format",
         default="json",
         metavar="format",
         help="Export format (default: %(default)s)")
     args = parser.parse_args()
 
+
     print()
     print('Punk API Export!')
     print('================')
-    print('Searching: ' + args.beer_name)
+   
+    searching = '*random*'
+    payload = {}
+
+    if args.beer_name is not None:
+        searching = '"'+args.beer_name+'"'
+        payload['beer_name'] = format(args.beer_name)
+        
+    print('Searching: ' + searching)
     print()
     
-    payload = {
-        'beer_name': format(args.beer_name)
-    }
-
     result = beers(payload)
     if not result['beers']:
         print('No beer found.')
@@ -63,7 +71,7 @@ def main():
         export(beer)
 
     print()
-    print('Requests remaining: ' + result['remaining'])
+    print('Remaining requests: ' + result['remaining'])
 
 
 main()
