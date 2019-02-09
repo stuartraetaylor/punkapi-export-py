@@ -14,6 +14,8 @@ def beers(payload):
 
 def request(endpoint, payload = {}):
     r = requests.get('https://api.punkapi.com/v2/' + endpoint, params=payload) 
+    logging.info('Request: %s', r.url)
+
     json = r.json()
 
     if (r.status_code != 200):
@@ -47,6 +49,7 @@ def main():
         help="Export format (default: %(default)s)")
     args = parser.parse_args()
 
+    logging.basicConfig(level=logging.INFO)
 
     print()
     print('Punk API Export!')
